@@ -1,0 +1,102 @@
+{
+	"name": "Data validation",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_DF_gold",
+						"type": "DatasetReference"
+					},
+					"name": "gold"
+				}
+			],
+			"sinks": [
+				{
+					"linkedService": {
+						"referenceName": "LS_adls",
+						"type": "LinkedServiceReference"
+					},
+					"name": "sinkgold",
+					"rejectedDataLinkedService": {
+						"referenceName": "LS_adls",
+						"type": "LinkedServiceReference"
+					}
+				}
+			],
+			"transformations": [
+				{
+					"name": "newcols"
+				},
+				{
+					"name": "groupbyyear"
+				},
+				{
+					"name": "yearASC"
+				},
+				{
+					"name": "alter"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          ClaimAmount as double,",
+				"          ClaimDate as date,",
+				"          ClaimNo as string,",
+				"          ClaimStatus as string,",
+				"          ClaimType as string,",
+				"          Created as timestamp,",
+				"          CreatedBy as string,",
+				"          CustomerName as string,",
+				"          FIrstName as string,",
+				"          Gender as string,",
+				"          Gmail as string,",
+				"          LastName as string,",
+				"          PhoneNo as long,",
+				"          PolicyDate as date,",
+				"          PolicyNo as string,",
+				"          PolicyNumber as string,",
+				"          PolicyStatus as string,",
+				"          Policytype as string,",
+				"          Status as string,",
+				"          Update as timestamp,",
+				"          ValidationStatus as string,",
+				"          customerID as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> gold",
+				"gold derive(year = year(PolicyDate),",
+				"          month = month(PolicyDate),",
+				"          day = dayOfMonth(PolicyDate)) ~> newcols",
+				"newcols aggregate(groupBy(Year = year),",
+				"     Claimamount = sum(ClaimAmount)) ~> groupbyyear",
+				"groupbyyear sort(asc(Year, true)) ~> yearASC",
+				"yearASC alterRow(insertIf(1==1),",
+				"     partitionBy('hash', 1)) ~> alter",
+				"alter sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     format: 'delta',",
+				"     compressionType: 'snappy',",
+				"     compressionLevel: 'Fastest',",
+				"     fileSystem: 'gold',",
+				"     folderPath: 'Yearwise',",
+				"     mergeSchema: false,",
+				"     autoCompact: false,",
+				"     optimizedWrite: false,",
+				"     vacuum: 0,",
+				"     deletable: false,",
+				"     insertable: true,",
+				"     updateable: false,",
+				"     upsertable: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> sinkgold"
+			]
+		}
+	}
+}

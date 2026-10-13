@@ -1,0 +1,58 @@
+{
+	"name": "DS_DF_api",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_adls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": "api_insurance_raw.json",
+				"folderPath": "API_files/ranjith9346/ADF-Project-source-file/refs/heads/main",
+				"fileSystem": "bronze"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"Customer Name": {
+					"type": "string"
+				},
+				"Policy No": {
+					"type": "string"
+				},
+				"FN": {
+					"type": "string"
+				},
+				"LN": {
+					"type": "string"
+				},
+				"Email": {
+					"type": "string"
+				},
+				"Phone No": {
+					"type": "string"
+				},
+				"Claim No": {
+					"type": "string"
+				},
+				"Policy Date": {
+					"type": "string"
+				},
+				"Policy Status": {
+					"type": "string"
+				},
+				"Claim Date": {
+					"type": "string"
+				},
+				"Claim Amount": {
+					"type": "number"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

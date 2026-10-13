@@ -1,0 +1,297 @@
+{
+	"name": "Data Transformation",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_DF_insurance",
+						"type": "DatasetReference"
+					},
+					"name": "insurancebronze"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_DF_api",
+						"type": "DatasetReference"
+					},
+					"name": "apibronze"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_DF_claim",
+						"type": "DatasetReference"
+					},
+					"name": "claimdata"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_DF_Customer",
+						"type": "DatasetReference"
+					},
+					"name": "Customerdata"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_DF_Policy",
+						"type": "DatasetReference"
+					},
+					"name": "Policydata"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_DF_validdata",
+						"type": "DatasetReference"
+					},
+					"name": "sinksilver",
+					"rejectedDataLinkedService": {
+						"referenceName": "LS_adls",
+						"type": "LinkedServiceReference"
+					}
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_DF_reject",
+						"type": "DatasetReference"
+					},
+					"name": "sinkreject",
+					"rejectedDataLinkedService": {
+						"referenceName": "LS_adls",
+						"type": "LinkedServiceReference"
+					}
+				}
+			],
+			"transformations": [
+				{
+					"name": "Combineddata"
+				},
+				{
+					"name": "combinepolicy"
+				},
+				{
+					"name": "combinedcustomers"
+				},
+				{
+					"name": "Combinedclaim"
+				},
+				{
+					"name": "validationstatu"
+				},
+				{
+					"name": "split1"
+				},
+				{
+					"name": "altervalid"
+				},
+				{
+					"name": "mappingcols"
+				},
+				{
+					"name": "alternonvalid"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          {Claim Amount} as double,",
+				"          {Claim Date} as date,",
+				"          {Claim No} as string,",
+				"          {Customer Name} as string,",
+				"          Email as string,",
+				"          FN as string,",
+				"          LN as string,",
+				"          {Phone No} as long,",
+				"          {Policy Date} as date,",
+				"          {Policy No} as string,",
+				"          {Policy Status} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'documentPerLine') ~> insurancebronze",
+				"source(output(",
+				"          {Claim Amount} as double,",
+				"          {Claim Date} as date,",
+				"          {Claim No} as string,",
+				"          {Customer Name} as string,",
+				"          Email as string,",
+				"          FN as string,",
+				"          LN as string,",
+				"          {Phone No} as long,",
+				"          {Policy Date} as date,",
+				"          {Policy No} as string,",
+				"          {Policy Status} as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false,",
+				"     documentForm: 'arrayOfDocuments') ~> apibronze",
+				"source(output(",
+				"          CNo as string,",
+				"          PolicyNo as string,",
+				"          Camount as decimal(18,2),",
+				"          CType as string,",
+				"          CStatus as string,",
+				"          ClaimDate as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> claimdata",
+				"source(output(",
+				"          ID as integer,",
+				"          FN as string,",
+				"          LN as string,",
+				"          G as string,",
+				"          Ph as string,",
+				"          Status as string,",
+				"          Created as timestamp,",
+				"          CreatedBy as string,",
+				"          Update as timestamp,",
+				"          Email as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Customerdata",
+				"source(output(",
+				"          PolicyNo as string,",
+				"          CustomerID as integer,",
+				"          Ptype as string,",
+				"          PolicyDate as date,",
+				"          PolicyStatus as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> Policydata",
+				"insurancebronze, apibronze union(byName: true)~> Combineddata",
+				"Combineddata, Policydata join({Policy No} == PolicyNo,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> combinepolicy",
+				"combinepolicy, Customerdata join(Combineddata@Email == Customerdata@Email,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> combinedcustomers",
+				"combinedcustomers, claimdata join({Claim No} == CNo,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> Combinedclaim",
+				"Combinedclaim derive(ValidationStatus = iif(\r",
+				" isNull({Policy No}),\r",
+				" 'Policy Missing',\r",
+				"\r",
+				" iif(\r",
+				" isNull({Claim No}),\r",
+				" 'Claim Missing',\r",
+				"\r",
+				" iif(\r",
+				" isNull(CustomerID),\r",
+				" 'Customer Missing',\r",
+				"\r",
+				" iif(\r",
+				" {Claim Amount} <= 0,\r",
+				" 'Invalid Claim Amount',\r",
+				"\r",
+				" iif(\r",
+				" isNull(Combineddata@Email),\r",
+				" 'Email Missing',\r",
+				"\r",
+				" 'VALID'\r",
+				" )\r",
+				" )\r",
+				" )\r",
+				" )\r",
+				")) ~> validationstatu",
+				"validationstatu split(ValidationStatus == 'VALID',",
+				"     ValidationStatus != 'VALID',",
+				"     disjoint: false) ~> split1@(valid, Notvalid, others)",
+				"split1@valid alterRow(upsertIf(1==1)) ~> altervalid",
+				"altervalid select(mapColumn(",
+				"          ClaimAmount = {Claim Amount},",
+				"          ClaimDate = {Claim Date},",
+				"          ClaimNo = {Claim No},",
+				"          CustomerName = {Customer Name},",
+				"          Gmail = split1@valid@Email,",
+				"          FIrstName = split1@valid@FN,",
+				"          LastName = split1@valid@LN,",
+				"          PhoneNo = {Phone No},",
+				"          PolicyDate = {Policy Date},",
+				"          PolicyNumber = {Policy No},",
+				"          PolicyStatus = {Policy Status},",
+				"          Policytype = Ptype,",
+				"          customerID = ID,",
+				"          Gender = G,",
+				"          Status,",
+				"          Created,",
+				"          CreatedBy,",
+				"          Update,",
+				"          PolicyNo = split1@valid@PolicyNo,",
+				"          ClaimType = CType,",
+				"          ClaimStatus = CStatus,",
+				"          ValidationStatus",
+				"     ),",
+				"     partitionBy('hash', 1),",
+				"     skipDuplicateMapInputs: false,",
+				"     skipDuplicateMapOutputs: false) ~> mappingcols",
+				"split1@Notvalid alterRow(upsertIf(1==1),",
+				"     partitionBy('hash', 1)) ~> alternonvalid",
+				"mappingcols sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     partitionBy('hash', 1)) ~> sinksilver",
+				"alternonvalid sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     umask: 0022,",
+				"     preCommands: [],",
+				"     postCommands: [],",
+				"     mapColumn(",
+				"          ClaimAmount = {Claim Amount},",
+				"          ClaimDate = {Claim Date},",
+				"          ClaimNo = {Claim No},",
+				"          CustomerName = {Customer Name},",
+				"          Gmail = split1@Notvalid@Email,",
+				"          FirstName = split1@Notvalid@FN,",
+				"          LastName = split1@Notvalid@LN,",
+				"          PhoneNo = {Phone No},",
+				"          PolicyDate = {Policy Date},",
+				"          PolicyNo = {Policy No},",
+				"          PolicyStatus = {Policy Status},",
+				"          Policynu = split1@Notvalid@PolicyNo,",
+				"          CustomerID,",
+				"          Ptype,",
+				"          Policydate = PolicyDate,",
+				"          Policystatus = PolicyStatus,",
+				"          customerID = ID,",
+				"          Firstname = split1@Notvalid@FN,",
+				"          Lastname = split1@Notvalid@LN,",
+				"          Gender = G,",
+				"          Phonenumber = Ph,",
+				"          Status,",
+				"          Created,",
+				"          CreatedBy,",
+				"          Update,",
+				"          Email = split1@Notvalid@Email,",
+				"          Claimno = CNo,",
+				"          Policyno = split1@Notvalid@PolicyNo,",
+				"          Claimamount = Camount,",
+				"          ClaimType = CType,",
+				"          ClaimStatus = CStatus,",
+				"          Claimdate = ClaimDate,",
+				"          ValidationStatus",
+				"     ),",
+				"     partitionBy('hash', 1)) ~> sinkreject"
+			]
+		}
+	}
+}

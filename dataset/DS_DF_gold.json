@@ -1,0 +1,95 @@
+{
+	"name": "DS_DF_gold",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_adls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "silver"
+			}
+		},
+		"schema": {
+			"type": "object",
+			"properties": {
+				"ClaimAmount": {
+					"type": "number"
+				},
+				"ClaimDate": {
+					"type": "string"
+				},
+				"ClaimNo": {
+					"type": "string"
+				},
+				"CustomerName": {
+					"type": "string"
+				},
+				"Gmail": {
+					"type": "string"
+				},
+				"FirstName": {
+					"type": "string"
+				},
+				"LastName": {
+					"type": "string"
+				},
+				"PhoneNo": {
+					"type": "integer"
+				},
+				"PolicyDate": {
+					"type": "string"
+				},
+				"PolicyStatus": {
+					"type": "string"
+				},
+				"PolicyNumber": {
+					"type": "string"
+				},
+				"CustomerID": {
+					"type": "integer"
+				},
+				"PolicyType": {
+					"type": "string"
+				},
+				"Gender": {
+					"type": "string"
+				},
+				"PhoneNumber": {
+					"type": "string"
+				},
+				"Status": {
+					"type": "string"
+				},
+				"Created": {
+					"type": "string"
+				},
+				"CreatedBy": {
+					"type": "string"
+				},
+				"Update": {
+					"type": "string"
+				},
+				"Email": {
+					"type": "string"
+				},
+				"PolicyNo": {
+					"type": "string"
+				},
+				"ClaimType": {
+					"type": "string"
+				},
+				"ClaimStatus": {
+					"type": "string"
+				},
+				"ValidationStatus": {
+					"type": "string"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

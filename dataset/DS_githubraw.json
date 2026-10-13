@@ -1,0 +1,19 @@
+{
+	"name": "DS_githubraw",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_github",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Json",
+		"typeProperties": {
+			"location": {
+				"type": "HttpServerLocation",
+				"relativeUrl": "/ranjith9346/ADF-Project-source-file/refs/heads/main/api_insurance_raw.json"
+			}
+		},
+		"schema": {}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

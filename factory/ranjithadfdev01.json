@@ -1,0 +1,15 @@
+{
+	"name": "ranjithadfdev01",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "westus3",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "4259b81a-fbe4-45db-883e-f73b0c34ef80",
+		"tenantId": "750d3a3f-1f46-4da2-8a64-7605e75ea2f9"
+	}
+}

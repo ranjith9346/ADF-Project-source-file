@@ -1,0 +1,44 @@
+{
+	"name": "DS_DF_claim",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_sqlserver",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "CNo",
+				"type": "varchar"
+			},
+			{
+				"name": "PolicyNo",
+				"type": "varchar"
+			},
+			{
+				"name": "Camount",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			},
+			{
+				"name": "CType",
+				"type": "varchar"
+			},
+			{
+				"name": "CStatus",
+				"type": "varchar"
+			},
+			{
+				"name": "ClaimDate",
+				"type": "date"
+			}
+		],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "Claim"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
