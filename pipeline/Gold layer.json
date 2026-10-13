@@ -4,6 +4,7 @@
 		"activities": [
 			{
 				"name": "silvertogold",
+				"description": "Silver to gold completed ",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
