@@ -4,7 +4,7 @@
 		"activities": [
 			{
 				"name": "silvertogold",
-				"description": "",
+				"description": "The output data looks like \n\nYear | Policy Counts | Total Claim Amount\n\n2026 | 300 | 223344.00\n2025 | 150 | 167288.00",
 				"type": "ExecuteDataFlow",
 				"dependsOn": [],
 				"policy": {
